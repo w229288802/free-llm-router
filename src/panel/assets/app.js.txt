@@ -2656,7 +2656,11 @@ function createApiKey() {
 function openKeyEditor(existing) {
   const isNew = existing === null
   const lim = isNew
-    ? { maxRequests: 0, maxTokens: 0, windowHours: 24, models: [], allowedIps: [], expiresAt: 0 }
+    ? {
+        maxRequests: 5, maxTokens: 0, windowHours: 24,
+        models: ['deepseek-v4.1-flash', 'glm-5.3-flash'],
+        allowedIps: [], expiresAt: 0,
+      }
     : existing.limits
 
   const body = document.createElement('div')

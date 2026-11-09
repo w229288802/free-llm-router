@@ -1649,10 +1649,14 @@ val.textContent = fmtNum(h.count) + (h.failed ? ' / ' + fmtNum(h.failed) : '')
 ⚠️ **可复用教训：参考实现的措辞也要验证，不能照抄** ——
 一个词的差别会让用户做出完全不同的决定。
 
-##### d. 模型页新字段的唯一收口点
+##### d. 模型页新字段的唯一收口点（历史记录）
 
-三个字段（`providerName` / `realm` / `priceFactor`）都补在
+三个字段（`providerName` / `realm` / `priceFactor`）曾补在
 `/v1/models` 的**同一处** `data.push`（聚合条目也补，否则那几列全空白）。
+
+现按用户要求移除 `/v1/models` 返回中的 `providerName`（普通模型与聚合模型均不返回），
+面板通过 `owned_by` 对聚合条目作展示回退。新建 API Key 默认限制两个裸模型名
+（`deepseek-v4.1-flash` / `glm-5.3-flash`）与每统计窗口 5 次请求。
 
 ⚠️ `realm` 用 `picked.realm`（账号**实际所在**分片），**不按 providerId 猜** ——
 realm 是记在凭据 `extras.realm` 上的。
@@ -2282,11 +2286,11 @@ wrangler **内建** `CompiledWasm` 规则（`globs: ["**/*.wasm"]`），`import 
    现在注册表是 **12 家**（`src/providers/index.ts` 的 `PROVIDERS` 共 12 项）。
    ⚠️ 曾为 11 家（`loomy` 在第 9 轮**重新接入**，见 §9.1b）。
    `md5.ts` 保留（其算法源自 loomy 的 `Content-MD5`，但已无 loomy provider）。
-2. **`/v1/models` 一律带 `provider/` 前缀**（提交 `00a09e6`）。早先为默认供应商额外暴露一份**裸名**，
+2. **`/v1/models` 曾一律带 `provider/` 前缀**（提交 `00a09e6`）。早先为默认供应商额外暴露一份**裸名**，
    导致同一模型出现两次（`buddy/glm-5.3-flash` 与 `glm-5.3-flash`），而多家又有同名模型
    （`buddy/`、`codearts/`、`trae/` 都有 `deepseek-v4.1-flash`），裸名根本无从区分。
-   **目录里一律带前缀，裸名 0 项**；**请求侧仍接受裸名**（回退默认供应商，`splitModelName` 未动）——
-   兼容与无歧义分开处理。有测试锁定（`tests/panel.test.ts`：目录里不得出现裸名）。
+   请求侧仍接受裸名（回退默认供应商，`splitModelName` 未动）。现按用户要求将默认供应商 `buddy/`
+   的目录 id 改为裸名；其他供应商仍保留前缀，避免跨供应商重名时无法区分。
 3. **`/v1/models` 必须遍历两个 realm**（提交 `2e295ad`）。账号按 `extras.realm` 分片存放
    （国际版在 `global`），而原实现只看 `?realm=`（缺省 `cn`）⇒ 国际版**永远不会出现**，
    表现为「账号登录好了、别处也能用，但 `/v1/models` 里没有它」。且**每个账号要连它的 realm 一起记**
