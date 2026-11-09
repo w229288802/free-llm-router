@@ -2726,12 +2726,28 @@ function openKeyEditor(existing) {
   }
   exp.appendChild(expSpan); exp.appendChild(expInput)
 
+  const days = numField('有效天数（填后天数自动算过期时间）', 0)
+  days.input.oninput = () => {
+    const dayCount = Math.max(0, Number(days.input.value) || 0)
+    if (dayCount === 0) {
+      expInput.value = ''
+      return
+    }
+    const expiresAt = Date.now() + dayCount * 24 * 60 * 60 * 1000
+    const d = new Date(expiresAt - new Date().getTimezoneOffset() * 60000)
+    expInput.value = d.toISOString().slice(0, 16)
+  }
+  expInput.oninput = () => {
+    days.input.value = ''
+  }
+
   body.appendChild(nameInput)
   body.appendChild(req.wrap)
   body.appendChild(win.wrap)
   body.appendChild(tok.wrap)
   body.appendChild(modelsWrap)
   body.appendChild(ipsWrap)
+  body.appendChild(days.wrap)
   body.appendChild(exp)
 
   const submit = document.createElement('button')
