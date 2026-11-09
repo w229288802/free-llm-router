@@ -1657,6 +1657,7 @@ val.textContent = fmtNum(h.count) + (h.failed ? ' / ' + fmtNum(h.failed) : '')
 现按用户要求移除 `/v1/models` 返回中的 `providerName`（普通模型与聚合模型均不返回），
 面板通过 `owned_by` 对聚合条目作展示回退。新建 API Key 默认限制两个裸模型名
 （`deepseek-v4.1-flash` / `glm-5.3-flash`）与每统计窗口 5 次请求。
+响应层同时删除 `isFree`、`priceFactor`、`realm`；保留内部目录计算数据，避免影响聚合逻辑。
 
 ⚠️ `realm` 用 `picked.realm`（账号**实际所在**分片），**不按 providerId 猜** ——
 realm 是记在凭据 `extras.realm` 上的。

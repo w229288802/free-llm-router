@@ -3473,9 +3473,16 @@ async function handleInner(request: Request, env: Env, ctx: ExecutionContext): P
     // 不过滤的话用户能看到 100 个模型、挑一个、然后被 403 ——
     // 「看得见但用不了」比「看不见」更让人困惑。
     // 主密钥（`v1Auth.kind === 'admin'`）不过滤。
-    const visible = v1Auth?.kind === 'subkey'
+    const allowed = v1Auth?.kind === 'subkey'
       ? data.filter((m) => modelAllowed(String(m.id), v1Auth.record.limits.models))
       : data
+    const visible = allowed.map((m) => {
+      const item = { ...m } as Record<string, unknown>
+      delete item['isFree']
+      delete item['priceFactor']
+      delete item['realm']
+      return item
+    })
     return json({
       object: 'list',
       data: visible,
